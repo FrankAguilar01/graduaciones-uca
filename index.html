@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Graduaciones">
+<title>Graduaciones UCA</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #181c27;
+  --bg3: #1e2333;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #eef0f6;
+  --text2: #8b91a8;
+  --text3: #555c74;
+  --accent: #4f8ef7;
+  --accent-bg: rgba(79,142,247,0.12);
+  --green: #3ecf8e;
+  --green-bg: rgba(62,207,142,0.12);
+  --red: #f76f6f;
+  --red-bg: rgba(247,111,111,0.12);
+  --gold: #f5c842;
+  --gold-bg: rgba(245,200,66,0.1);
+  --radius: 10px;
+  --radius-lg: 14px;
+  --font: 'Sora', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* Header */
+.app-header{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg);}
+.app-logo{width:34px;height:34px;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.app-title{font-size:15px;font-weight:600;color:var(--text);}
+.app-subtitle{font-size:11px;color:var(--text3);}
+.offline-badge{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);font-family:var(--mono);}
+.offline-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* Steps nav */
+.steps-nav{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.steps-nav::-webkit-scrollbar{display:none;}
+.step-tab{flex:1;min-width:64px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:var(--font);font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all 0.18s;white-space:nowrap;}
+.step-tab i{font-size:20px;}
+.step-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.step-tab.done{color:var(--green);}
+
+/* Content */
+.content{flex:1;overflow-y:auto;padding:16px;}
+.section{display:none;}.section.active{display:block;}
+
+/* Typography */
+.section-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.section-desc{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+
+/* Textarea */
+textarea{width:100%;height:180px;font-family:var(--mono);font-size:12px;padding:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);resize:vertical;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.hint{font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--mono);}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;}
+.btn:hover{border-color:var(--border2);background:var(--bg2);}
+.btn:active{transform:scale(0.97);}
+.btn-green{background:var(--green-bg);border-color:rgba(62,207,142,0.3);color:var(--green);}
+.btn-accent{background:var(--accent-bg);border-color:rgba(79,142,247,0.3);color:var(--accent);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;}
+.stat-label{font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.stat-val{font-size:22px;font-weight:600;color:var(--text);}
+.stat-val.green{color:var(--green);}
+.stat-val.red{color:var(--red);}
+.stat-val.accent{color:var(--accent);}
+
+/* Student list */
+.student-list{display:flex;flex-direction:column;gap:5px;}
+.s-row{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);transition:opacity 0.2s;}
+.s-row.ausente{opacity:0.35;}
+.s-row.ausente .s-nombre{text-decoration:line-through;}
+.s-id{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text3);min-width:26px;}
+.s-nombre{font-size:13px;color:var(--text);flex:1;line-height:1.3;}
+.s-pub{font-size:11px;color:var(--accent);font-family:var(--mono);text-align:right;min-width:90px;}
+.tog-btn{padding:5px 10px;font-size:11px;border-radius:6px;border:1px solid;cursor:pointer;font-family:var(--font);font-weight:500;white-space:nowrap;transition:all 0.15s;}
+.tog-btn.presente{background:var(--green-bg);border-color:rgba(62,207,142,0.3);color:var(--green);}
+.tog-btn.ausente{background:var(--bg3);border-color:var(--border);color:var(--text3);}
+.edit-btn{padding:5px 10px;font-size:11px;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-family:var(--font);background:transparent;color:var(--text2);white-space:nowrap;}
+
+/* Foto */
+.foto-input-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.foto-input-row input{flex:1;min-width:160px;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+.foto-input-row input:focus{border-color:var(--accent);}
+.fila-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;margin-bottom:8px;}
+.fila-header{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:8px;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;min-height:22px;}
+.chip{display:flex;flex-direction:column;align-items:center;padding:5px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-family:var(--mono);font-size:13px;font-weight:500;min-width:46px;text-align:center;}
+.chip .cn{font-size:9px;font-weight:400;color:var(--text3);max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
+.chip.err{border-color:rgba(247,111,111,0.4);background:var(--red-bg);}
+.chip.err .cn{color:var(--red);}
+.fila-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+input.num-in{width:68px;text-align:center;font-size:17px;font-weight:600;padding:8px 4px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);color:var(--text);font-family:var(--mono);outline:none;}
+input.num-in:focus{border-color:var(--accent);}
+
+/* Result preview */
+.result-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-top:12px;}
+.result-box h4{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:8px;}
+.result-text{font-family:var(--mono);font-size:12px;color:var(--text);line-height:2;white-space:pre-wrap;}
+.err-t{color:var(--red);}
+
+/* Historial */
+.foto-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;margin-bottom:8px;}
+.foto-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.foto-card-title{font-size:13px;font-weight:600;color:var(--text);}
+.foto-card-body{font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.9;white-space:pre-wrap;}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;font-family:var(--mono);background:var(--accent-bg);color:var(--accent);}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);}
+.empty-state i{font-size:40px;display:block;margin-bottom:12px;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:14px;}
+.tok-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
+.tok-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.tok{padding:8px 14px;border-radius:99px;border:1px solid var(--border2);font-size:13px;cursor:pointer;background:var(--bg3);color:var(--text);font-family:var(--font);transition:all 0.12s;}
+.tok:active{transform:scale(0.95);}
+.tok.nom-sel{background:var(--green-bg);border-color:rgba(62,207,142,0.4);color:var(--green);font-weight:600;}
+.tok.ap-sel{background:var(--accent-bg);border-color:rgba(79,142,247,0.4);color:var(--accent);font-weight:600;}
+.modal-preview{font-size:13px;color:var(--text2);padding:10px 13px;background:var(--bg3);border-radius:var(--radius);margin-bottom:14px;min-height:38px;display:flex;align-items:center;}
+.modal-preview strong{color:var(--text);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+/* Alert */
+.alert{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 16px;font-size:13px;z-index:400;white-space:nowrap;transition:opacity 0.3s;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-logo">🎓</div>
+  <div>
+    <div class="app-title">Graduaciones UCA</div>
+    <div class="app-subtitle">Registro fotográfico</div>
+  </div>
+  <div class="offline-badge">
+    <div class="offline-dot" id="conn-dot"></div>
+    <span id="conn-label">online</span>
+  </div>
+</div>
+
+<nav class="steps-nav">
+  <button class="step-tab active" id="stab-0" onclick="goStep(0)"><i class="ti ti-list-check"></i>Listado</button>
+  <button class="step-tab" id="stab-1" onclick="goStep(1)"><i class="ti ti-user-check"></i>Asistencia</button>
+  <button class="step-tab" id="stab-2" onclick="goStep(2)"><i class="ti ti-pencil"></i>Nombres</button>
+  <button class="step-tab" id="stab-3" onclick="goStep(3)"><i class="ti ti-camera"></i>Foto</button>
+  <button class="step-tab" id="stab-4" onclick="goStep(4)"><i class="ti ti-clipboard-list"></i>Historial</button>
+</nav>
+
+<div class="content">
+
+  <!-- PASO 0: LISTADO -->
+  <div id="sec-0" class="section active">
+    <div class="section-title">Cargar listado de estudiantes</div>
+    <div class="section-desc">Pega el listado completo. Una línea por estudiante con su número y nombre completo.</div>
+    <textarea id="raw-list" placeholder="1, Ana Sofía García López&#10;2, Carlos Eduardo Martínez Rivas&#10;3, María José Rodríguez Hernández&#10;..."></textarea>
+    <p class="hint">// Formatos: "1, Nombre" · "1. Nombre" · "1 Nombre"</p>
+    <div class="btn-row">
+      <button class="btn btn-accent" onclick="cargarListado()"><i class="ti ti-check"></i> Cargar listado</button>
+      <button class="btn" onclick="cargarEjemplo()"><i class="ti ti-file-text"></i> Ver ejemplo</button>
+    </div>
+    <div id="load-ok" style="display:none;margin-top:12px;padding:10px 14px;background:var(--green-bg);border:1px solid rgba(62,207,142,0.3);border-radius:var(--radius);font-size:13px;color:var(--green);display:none;align-items:center;gap:8px;"></div>
+  </div>
+
+  <!-- PASO 1: ASISTENCIA -->
+  <div id="sec-1" class="section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val" id="st-tot">0</div></div>
+      <div class="stat-card"><div class="stat-label">Presentes</div><div class="stat-val green" id="st-pre">0</div></div>
+      <div class="stat-card"><div class="stat-label">Ausentes</div><div class="stat-val red" id="st-aus">0</div></div>
+    </div>
+    <div class="student-list" id="asist-list"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="goStep(2)"><i class="ti ti-arrow-right"></i> Continuar a nombres</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: NOMBRES -->
+  <div id="sec-2" class="section">
+    <div class="section-desc">Cada estudiante elige un nombre y un apellido de su nombre completo para la publicación.</div>
+    <div class="student-list" id="nombres-list"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="goStep(3)"><i class="ti ti-camera"></i> Ir a registrar foto</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: FOTO -->
+  <div id="sec-3" class="section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">En foto</div><div class="stat-val accent" id="sf-reg">0</div></div>
+      <div class="stat-card"><div class="stat-label">Filas</div><div class="stat-val" id="sf-fil">0</div></div>
+      <div class="stat-card"><div class="stat-label">Presentes</div><div class="stat-val green" id="sf-pre">0</div></div>
+    </div>
+    <div class="foto-input-row">
+      <input type="text" id="foto-nom" placeholder="Nombre del grupo (ej: Grupo 1 — Medicina)">
+      <button class="btn" onclick="nuevaFila()"><i class="ti ti-plus"></i> Fila</button>
+    </div>
+    <div id="filas-wrap"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="guardarFoto()"><i class="ti ti-device-floppy"></i> Guardar foto</button>
+      <button class="btn" onclick="limpiarFoto()"><i class="ti ti-refresh"></i> Nueva foto</button>
+    </div>
+    <div id="foto-prev" class="result-box" style="display:none;">
+      <h4>Vista previa</h4>
+      <div id="foto-txt" class="result-text"></div>
+    </div>
+  </div>
+
+  <!-- PASO 4: HISTORIAL -->
+  <div id="sec-4" class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <p id="hist-count" style="font-size:13px;color:var(--text2);">Sin fotos guardadas</p>
+      <button class="btn" onclick="copiarTodo()"><i class="ti ti-copy"></i> Copiar todo</button>
+    </div>
+    <div id="hist-lista"></div>
+  </div>
+</div>
+
+<!-- MODAL NOMBRE -->
+<div id="modal-wrap" style="display:none;position:fixed;inset:0;z-index:200;">
+  <div class="modal-overlay" onclick="cerrarModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="m-nombre-completo"></div>
+      <div class="modal-sub">Toca primero un nombre, luego un apellido.</div>
+      <div class="tok-label">Nombres</div>
+      <div class="tok-row" id="m-nombres"></div>
+      <div class="tok-label">Apellidos</div>
+      <div class="tok-row" id="m-apellidos"></div>
+      <div class="modal-preview" id="m-prev">Selecciona un nombre y un apellido</div>
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-green" id="m-save" onclick="guardarNombre()" disabled>Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Estado ──────────────────────────────
+let estudiantes = [];
+let filas = [], historial = [], fotoCounter = 1;
+let modalIdx = null, mNom = null, mAp = null;
+
+// ── Conectividad ─────────────────────────
+function updateConn() {
+  const online = navigator.onLine;
+  document.getElementById('conn-dot').style.background = online ? 'var(--green)' : 'var(--red)';
+  document.getElementById('conn-label').textContent = online ? 'online' : 'offline';
+}
+window.addEventListener('online', updateConn);
+window.addEventListener('offline', updateConn);
+updateConn();
+
+// ── Service Worker ────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── Persistencia local ────────────────────
+function guardarEstado() {
+  try { localStorage.setItem('uca-estudiantes', JSON.stringify(estudiantes)); } catch(e){}
+  try { localStorage.setItem('uca-historial', JSON.stringify(historial)); } catch(e){}
+  try { localStorage.setItem('uca-fotoCounter', fotoCounter); } catch(e){}
+}
+function cargarEstado() {
+  try { const s = localStorage.getItem('uca-estudiantes'); if(s) estudiantes = JSON.parse(s); } catch(e){}
+  try { const h = localStorage.getItem('uca-historial'); if(h) historial = JSON.parse(h); } catch(e){}
+  try { const f = localStorage.getItem('uca-fotoCounter'); if(f) fotoCounter = parseInt(f); } catch(e){}
+  if(estudiantes.length) {
+    document.getElementById('load-ok').style.display = 'flex';
+    document.getElementById('load-ok').innerHTML = `<i class="ti ti-circle-check"></i> ${estudiantes.length} estudiantes cargados`;
+  }
+}
+
+// ── Ejemplo ──────────────────────────────
+function cargarEjemplo() {
+  const ns=['Ana Sofía','Carlos Eduardo','María José','José Antonio','Laura Beatriz','Luis Fernando','Sofía Valentina','Diego Alejandro','Valeria Marcela','Andrés Felipe'];
+  const aps=['García López','Martínez Rivas','Rodríguez Hernández','Hernández Castro','González Fuentes','Pérez Alvarado','Sánchez Morales','Ramírez Vega','Torres Jiménez','Flores Mendoza'];
+  let txt='';
+  for(let i=1;i<=65;i++) txt+=`${i}, ${ns[(i-1)%10]} ${aps[(i-1)%10]}\n`;
+  document.getElementById('raw-list').value = txt.trim();
+}
+
+// ── Cargar listado ────────────────────────
+function cargarListado() {
+  const raw = document.getElementById('raw-list').value.trim();
+  if(!raw) return;
+  const nuevo = [];
+  raw.split('\n').forEach(l => {
+    const m = l.match(/^(\d+)[,.\s]+(.+)/);
+    if(m) {
+      const id = parseInt(m[1]);
+      const exist = estudiantes.find(e => e.id === id);
+      nuevo.push({
+        id,
+        nombreCompleto: m[2].trim(),
+        presente: exist ? exist.presente : true,
+        nombrePub: exist ? exist.nombrePub : null
+      });
+    }
+  });
+  if(!nuevo.length) return;
+  estudiantes = nuevo;
+  guardarEstado();
+  const ok = document.getElementById('load-ok');
+  ok.style.display = 'flex';
+  ok.innerHTML = `<i class="ti ti-circle-check"></i> ${estudiantes.length} estudiantes cargados`;
+  goStep(1);
+}
+
+// ── Navegación ────────────────────────────
+function goStep(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.step-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-'+n).classList.add('active');
+  document.getElementById('stab-'+n).classList.add('active');
+  if(n===1) renderAsistencia();
+  if(n===2) renderNombres();
+  if(n===3) renderFotoStats();
+  if(n===4) renderHistorial();
+  document.querySelector('.content').scrollTop = 0;
+}
+
+// ── PASO 1: ASISTENCIA ────────────────────
+function renderAsistencia() {
+  const pres = estudiantes.filter(e=>e.presente).length;
+  document.getElementById('st-tot').textContent = estudiantes.length;
+  document.getElementById('st-pre').textContent = pres;
+  document.getElementById('st-aus').textContent = estudiantes.length - pres;
+  document.getElementById('asist-list').innerHTML = estudiantes.map((e,i) => `
+    <div class="s-row${!e.presente?' ausente':''}">
+      <span class="s-id">${e.id}</span>
+      <span class="s-nombre">${e.nombreCompleto}</span>
+      <button class="tog-btn ${e.presente?'presente':'ausente'}" onclick="toggleAsist(${i})">
+        ${e.presente?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i>'}
+        ${e.presente?'Presente':'Ausente'}
+      </button>
+    </div>`).join('');
+}
+function toggleAsist(i) {
+  estudiantes[i].presente = !estudiantes[i].presente;
+  guardarEstado();
+  renderAsistencia();
+}
+
+// ── PASO 2: NOMBRES ───────────────────────
+function renderNombres() {
+  const presentes = estudiantes.filter(e=>e.presente);
+  document.getElementById('nombres-list').innerHTML = presentes.map(e => {
+    const i = estudiantes.indexOf(e);
+    return `<div class="s-row">
+      <span class="s-id">${e.id}</span>
+      <span class="s-nombre">${e.nombreCompleto}</span>
+      <span class="s-pub">${e.nombrePub||'<span style="color:var(--text3)">—</span>'}</span>
+      <button class="edit-btn" onclick="abrirModal(${i})"><i class="ti ti-pencil"></i> Elegir</button>
+    </div>`;
+  }).join('');
+}
+
+function tokenizar(nombre) {
+  const p = nombre.trim().split(/\s+/);
+  const m = Math.ceil(p.length/2);
+  return {nombres: p.slice(0,m), apellidos: p.slice(m)};
+}
+
+function abrirModal(i) {
+  modalIdx=i; mNom=null; mAp=null;
+  const e = estudiantes[i];
+  const {nombres, apellidos} = tokenizar(e.nombreCompleto);
+  document.getElementById('m-nombre-completo').textContent = e.nombreCompleto;
+  document.getElementById('m-nombres').innerHTML = nombres.map(n =>
+    `<button class="tok" onclick="selNom('${n}',this)">${n}</button>`).join('');
+  document.getElementById('m-apellidos').innerHTML = apellidos.map(a =>
+    `<button class="tok" onclick="selAp('${a}',this)">${a}</button>`).join('');
+  actualizarMPrev();
+  document.getElementById('modal-wrap').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function selNom(n,el) {
+  document.querySelectorAll('#m-nombres .tok').forEach(t=>t.classList.remove('nom-sel'));
+  el.classList.add('nom-sel'); mNom=n; actualizarMPrev();
+}
+function selAp(a,el) {
+  document.querySelectorAll('#m-apellidos .tok').forEach(t=>t.classList.remove('ap-sel'));
+  el.classList.add('ap-sel'); mAp=a; actualizarMPrev();
+}
+function actualizarMPrev() {
+  const p = document.getElementById('m-prev');
+  const btn = document.getElementById('m-save');
+  if(mNom&&mAp) { p.innerHTML=`Aparecerá como: <strong>${mNom} ${mAp}</strong>`; btn.disabled=false; }
+  else { p.textContent='Selecciona un nombre y un apellido'; btn.disabled=true; }
+}
+function guardarNombre() {
+  if(mNom&&mAp) {
+    estudiantes[modalIdx].nombrePub = `${mNom} ${mAp}`;
+    guardarEstado();
+    cerrarModal();
+    renderNombres();
+  }
+}
+function cerrarModal() {
+  document.getElementById('modal-wrap').style.display='none';
+  document.body.style.overflow='';
+}
+
+// ── PASO 3: FOTO ──────────────────────────
+function getByNum(n) { return estudiantes.find(e=>e.id===n&&e.presente)||null; }
+
+function renderFotoStats() {
+  document.getElementById('sf-pre').textContent = estudiantes.filter(e=>e.presente).length;
+  actualizarStats();
+}
+function actualizarStats() {
+  document.getElementById('sf-reg').textContent = filas.reduce((a,f)=>a+f.length,0);
+  document.getElementById('sf-fil').textContent = filas.length;
+}
+function nuevaFila() {
+  if(filas.length>=5){toast('Máximo 5 filas.');return;}
+  filas.push([]);
+  renderFilas();
+}
+function renderFilas() {
+  const c = document.getElementById('filas-wrap');
+  c.innerHTML='';
+  filas.forEach((fila,fi)=>{
+    const div=document.createElement('div');
+    div.className='fila-block';
+    const chips = fila.length
+      ? fila.map(n=>{const e=getByNum(n);const nom=e?(e.nombrePub||e.nombreCompleto.split(' ')[0]):null;
+          return `<div class="chip${!nom?' err':''}"><span>${n}</span><span class="cn">${nom||'¿?'}</span></div>`;}).join('')
+      : '<span style="font-size:11px;color:var(--text3);">Vacía</span>';
+    div.innerHTML=`<div class="fila-header">Fila ${fi+1} &nbsp;·&nbsp; ${fila.length} personas &nbsp;·&nbsp; izq → der</div>
+      <div class="chips">${chips}</div>
+      <div class="fila-controls">
+        <input type="number" class="num-in" id="fi-${fi}" placeholder="Nº" min="1" max="999"
+          onkeydown="if(event.key==='Enter'){addNum(${fi})}" inputmode="numeric">
+        <button class="btn btn-accent" style="padding:8px 12px;" onclick="addNum(${fi})"><i class="ti ti-plus"></i></button>
+        <button class="btn" style="padding:8px 12px;" onclick="undoFila(${fi})"><i class="ti ti-backspace"></i></button>
+        ${fi===filas.length-1&&fi>0?`<button class="btn" style="padding:8px 11px;color:var(--red);border-color:rgba(247,111,111,0.3);" onclick="delFila(${fi})"><i class="ti ti-trash"></i></button>`:''}
+      </div>`;
+    c.appendChild(div);
+  });
+  actualizarPreview();
+  actualizarStats();
+}
+function addNum(fi) {
+  const inp=document.getElementById(`fi-${fi}`);
+  const n=parseInt(inp.value);
+  if(!n||n<1)return;
+  filas[fi].push(n);
+  inp.value=''; inp.focus();
+  renderFilas();
+}
+function undoFila(fi){if(filas[fi].length){filas[fi].pop();renderFilas();}}
+function delFila(fi){filas.splice(fi,1);renderFilas();}
+
+function genTexto(nombre) {
+  let t=`${nombre}\n`;
+  filas.forEach((fila,fi)=>{
+    const noms=fila.map(n=>{const e=getByNum(n);return e?(e.nombrePub||e.nombreCompleto):`[?? #${n}]`;});
+    t+=`Fila ${fi+1}, de izquierda a derecha: ${noms.join(', ')}\n`;
+  });
+  return t.trim();
+}
+function actualizarPreview() {
+  const nombre=document.getElementById('foto-nom').value||`Foto ${fotoCounter}`;
+  const total=filas.reduce((a,f)=>a+f.length,0);
+  if(!total){document.getElementById('foto-prev').style.display='none';return;}
+  document.getElementById('foto-prev').style.display='block';
+  const txt=genTexto(nombre);
+  document.getElementById('foto-txt').innerHTML=txt.replace(/\[(\?\? #\d+)\]/g,'<span class="err-t">[$1]</span>');
+}
+document.addEventListener('input',e=>{
+  if(e.target.id==='foto-nom') actualizarPreview();
+});
+function guardarFoto() {
+  const nombre=document.getElementById('foto-nom').value||`Foto ${fotoCounter}`;
+  const total=filas.reduce((a,f)=>a+f.length,0);
+  if(!total){toast('Agrega al menos una fila.');return;}
+  historial.push({nombre,texto:genTexto(nombre),total,filas:filas.length,hora:new Date().toLocaleTimeString('es-SV')});
+  fotoCounter++;
+  guardarEstado();
+  limpiarFoto();
+  toast('¡Foto guardada!');
+  goStep(4);
+}
+function limpiarFoto() {
+  filas=[];
+  document.getElementById('foto-nom').value='';
+  document.getElementById('filas-wrap').innerHTML='';
+  document.getElementById('foto-prev').style.display='none';
+  actualizarStats();
+}
+
+// ── PASO 4: HISTORIAL ─────────────────────
+function renderHistorial() {
+  const c=document.getElementById('hist-lista');
+  document.getElementById('hist-count').textContent=historial.length?`${historial.length} foto(s) guardada(s)`:'Sin fotos guardadas';
+  if(!historial.length){c.innerHTML='<div class="empty-state"><i class="ti ti-camera-off"></i>Aún no hay fotos guardadas</div>';return;}
+  c.innerHTML=historial.map((f,i)=>`
+    <div class="foto-card">
+      <div class="foto-card-hd">
+        <div>
+          <div class="foto-card-title">${f.nombre}</div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">${f.hora}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="badge">${f.total} · ${f.filas} filas</span>
+          <button class="btn" style="padding:6px 10px;" onclick="copiarFoto(${i})"><i class="ti ti-copy"></i></button>
+          <button class="btn" style="padding:6px 10px;color:var(--red);border-color:rgba(247,111,111,0.3);" onclick="eliminarFoto(${i})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="foto-card-body">${f.texto}</div>
+    </div>`).join('');
+}
+function copiarFoto(i){navigator.clipboard.writeText(historial[i].texto).then(()=>toast('¡Copiado!'));}
+function eliminarFoto(i){historial.splice(i,1);guardarEstado();renderHistorial();}
+function copiarTodo(){
+  if(!historial.length)return;
+  navigator.clipboard.writeText(historial.map(f=>f.texto).join('\n\n---\n\n')).then(()=>toast('¡Todo copiado!'));
+}
+
+// ── Toast ─────────────────────────────────
+function toast(msg) {
+  const el=document.createElement('div');
+  el.className='alert'; el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},2000);
+}
+
+// ── Init ──────────────────────────────────
+cargarEstado();
+</script>
+</body>
+</html>
